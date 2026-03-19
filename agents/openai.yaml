@@ -1,0 +1,4 @@
+﻿interface:
+  display_name: "Self-improving for Codex"
+  short_description: "在 Codex 中搭建基于 AGENTS.md 与 memories 的自我进化闭环。"
+  default_prompt: "Use $self-improving-for-codex to set up a Codex-native self-improving system in this environment."
