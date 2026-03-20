@@ -10,7 +10,7 @@ Use this reference when proposing or updating the global `AGENTS.md` integration
 - require reading `PROFILE.md` and `ACTIVE.md` before new work
 - define logging triggers
 - define promotion rules
-- forbid automatic editing of `AGENTS.md` itself unless the user explicitly asks
+- keep `AGENTS.md` itself under manual user control
 
 ## Recommended Rule Shape
 
@@ -23,7 +23,7 @@ It should define:
 3. logging triggers
 4. file-by-file routing
 5. promotion rules
-6. the rule that `AGENTS.md` may only be changed with user approval
+6. the boundary between `ACTIVE.md` promotion and `AGENTS.md` promotion
 
 ## Recommended Text
 
@@ -54,7 +54,7 @@ Write entries by type:
 Promotion rules:
 1. If a pattern recurs or is broadly useful across tasks, promote it into `C:\Users\Administrator\.codex\memories\ACTIVE.md`
 2. Keep `ACTIVE.md` concise and current
-3. Never edit `AGENTS.md` directly. If a learning deserves promotion into `AGENTS.md`, propose the exact text to the user and wait for manual approval and manual application.
+3. Only promote something into this `AGENTS.md` when it becomes a stable top-level rule, or when the user explicitly asks
 
 Behavior expectations:
 - Default to Chinese when writing memory entries unless the user asks otherwise

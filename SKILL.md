@@ -1,6 +1,6 @@
 ---
 name: self-improving-for-codex
-description: Build or maintain a Codex-native self-improving memory loop using global `AGENTS.md`, a persistent memories directory, and optional nightly review automation. Use when Codex needs to adapt OpenClaw-style self-improvement ideas to Codex, set up long-term user/profile memory, create `PROFILE.md` / `ACTIVE.md` / `LEARNINGS.md` / `ERRORS.md` / `FEATURE_REQUESTS.md`, add promotion rules from raw learnings into active guidance, or create a recurring review automation.
+description: Build or maintain a Codex-native self-improving memory loop using global `AGENTS.md`, a persistent memories directory, and optional nightly refinement automation. Use when Codex needs to adapt OpenClaw-style self-improvement ideas to Codex, set up long-term user/profile memory, create `PROFILE.md` / `ACTIVE.md` / `LEARNINGS.md` / `ERRORS.md` / `FEATURE_REQUESTS.md`, add promotion rules from raw learnings into active guidance, or create a recurring memory-refinement automation.
 ---
 
 # Self-improving for Codex
@@ -67,8 +67,8 @@ Unless the user explicitly asks for direct edits, propose the exact `AGENTS.md` 
 
 When the user wants recurring maintenance, create a nightly automation that:
 
-- reviews the last 24 hours of real user conversation
 - reviews the current memory files
+- primarily refines `LEARNINGS.md`, `ERRORS.md`, and `FEATURE_REQUESTS.md`
 - proposes or applies safe updates to the memory files
 - never edits `AGENTS.md` automatically
 
@@ -81,7 +81,7 @@ Before finishing, confirm the setup actually forms a loop:
 1. `AGENTS.md` points Codex to `PROFILE.md` and `ACTIVE.md`
 2. the five memory files exist and have sane content
 3. promotion rules are explicit
-4. if automation was requested, the automation prompt explains how to find the last 24 hours accurately
+4. if automation was requested, the automation prompt clearly explains the refinement-only role and promotion rules
 
 ## Promotion Rules
 
