@@ -111,10 +111,19 @@ Use for:
 ```md
 # LEARNINGS
 
+## Promotion Tagging Standard
+
+- `Promote To ACTIVE`: `none` | `PREF` | `ABS`
+- `Promotion Confidence`: `low` | `medium` | `high`
+- `Promotion Notes`: short reason for the current classification
+
 ## [LRN-YYYYMMDD-001] category
 **Logged**: ISO-8601 timestamp
 **Priority**: low | medium | high | critical
 **Status**: pending | resolved | promoted | wont_fix
+**Promote To ACTIVE**: none | PREF | ABS
+**Promotion Confidence**: low | medium | high
+**Promotion Notes**: ...
 
 ### Summary
 ...
@@ -135,10 +144,19 @@ Use for:
 ```md
 # ERRORS
 
+## Promotion Tagging Standard
+
+- `Promote To ACTIVE`: `none` | `PREF` | `ABS`
+- `Promotion Confidence`: `low` | `medium` | `high`
+- `Promotion Notes`: short reason for the current classification
+
 ## [ERR-YYYYMMDD-001] command_or_tool
 **Logged**: ISO-8601 timestamp
 **Priority**: low | medium | high | critical
 **Status**: pending | resolved | promoted | wont_fix
+**Promote To ACTIVE**: none | PREF | ABS
+**Promotion Confidence**: low | medium | high
+**Promotion Notes**: ...
 
 ### Summary
 ...
@@ -162,10 +180,19 @@ Use for:
 ```md
 # FEATURE_REQUESTS
 
+## Promotion Tagging Standard
+
+- `Promote To ACTIVE`: `none` | `PREF` | `ABS`
+- `Promotion Confidence`: `low` | `medium` | `high`
+- `Promotion Notes`: short reason for the current classification
+
 ## [FEAT-YYYYMMDD-001] capability_name
 **Logged**: ISO-8601 timestamp
 **Priority**: low | medium | high | critical
 **Status**: pending | resolved | promoted | wont_fix
+**Promote To ACTIVE**: none | PREF | ABS
+**Promotion Confidence**: low | medium | high
+**Promotion Notes**: ...
 
 ### Requested Capability
 ...
@@ -182,5 +209,7 @@ Use for:
 Use these default rules:
 
 - only promote stable cross-task knowledge to `ACTIVE.md`
+- use `ABS` inside `ACTIVE.md` for near-non-negotiable collaboration rules
+- use `PREF` inside `ACTIVE.md` for stable but overridable communication or delivery preferences
 - only promote stable user identity and preference facts to `PROFILE.md`
 - keep uncertain items in raw logs until they recur or the user confirms them

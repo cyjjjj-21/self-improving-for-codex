@@ -74,7 +74,18 @@ When the user wants recurring maintenance, create a nightly automation that:
 
 Read [references/nightly-review.md](references/nightly-review.md) before designing the automation.
 
-### 5. Validate the loop
+### 5. Use scripts when deterministic behavior helps
+
+Prefer the bundled scripts when the user wants repeatable sync or maintenance behavior:
+
+- `scripts/memory_sync.py` for conservative bridge-to-main raw memory sync
+- `scripts/nightly_refine.py` for nightly review, promotion, and status updates
+- `scripts/generate_local_skill_index.py` for regenerating the local skill registry
+- `scripts/run_night_memory_pipeline.py` for a single-entry nightly pipeline that runs sync, refine, and Sunday-only registry refresh in order
+
+These scripts also write audit records so later cleanup or debugging stays explainable. When the automation environment supports only one stable writable root, prefer a shared lock directory and the single-entry pipeline script over prompt-only orchestration.
+
+### 6. Validate the loop
 
 Before finishing, confirm the setup actually forms a loop:
 
@@ -82,6 +93,7 @@ Before finishing, confirm the setup actually forms a loop:
 2. the five memory files exist and have sane content
 3. promotion rules are explicit
 4. if automation was requested, the automation prompt clearly explains the refinement-only role and promotion rules
+5. sync or refine scripts have an audit trail when they apply changes
 
 ## Promotion Rules
 
@@ -108,4 +120,6 @@ When using this skill, aim to produce some or all of these:
 - a memory directory with the five core files
 - a proposed `AGENTS.md` snippet
 - an optional nightly automation prompt
+- optional deterministic scripts for sync, refine, and registry generation
+- audit logs that explain what was synced, promoted, or left unchanged
 - a short explanation of what was created, what was not changed, and how the loop works

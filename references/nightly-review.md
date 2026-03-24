@@ -107,3 +107,13 @@ Use this prompt as the current recommended baseline when creating the nightly re
 The automation may update memory files if the user wants an active maintenance loop.
 
 It must not edit `AGENTS.md` automatically.
+
+## Engineering Notes
+
+When the environment runs automations in isolated per-`cwd` executions, prefer this pattern:
+
+- use one root `cwd`
+- call one orchestrator script such as `scripts/run_night_memory_pipeline.py`
+- pass a shared lock directory such as `~/.codex/runtime/locks`
+
+This avoids duplicate runs, conflicting `.maintenance.lock` writes, and repeated `PENDING_REVIEW` items for what should be one logical nightly task.
