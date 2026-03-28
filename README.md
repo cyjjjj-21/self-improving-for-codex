@@ -29,6 +29,8 @@ This local branch extends the original idea into a more operational, repeatable 
 - a single-entry nightly pipeline design instead of relying on ad hoc prompt-only orchestration
 - shared lock directory support via `--lock-dir`, which avoids `.maintenance.lock` conflicts across multiple Codex homes
 - documentation for using a single root automation workspace so one automation run does not fan out into duplicate per-`cwd` executions
+- launchd-oriented wrappers and status files for write-side nightly maintenance outside Codex `worktree` sandboxes
+- a split nightly pattern where launchd performs real writes and a later Codex automation only reads precomputed summary artifacts to open an inbox item
 
 ## Repository Layout
 
@@ -59,16 +61,49 @@ Runs the full nightly pipeline in order:
 2. main memory nightly refinement
 3. Sunday-only local skill index refresh
 
+The current pipeline is fail-fast:
+
+- if bridge sync fails, refinement and weekly index refresh are marked `skipped`
+- if refinement fails, weekly index refresh is also marked `skipped`
+- optional `--status-path` writes a machine-readable JSON payload with step status and timestamps
+
+### `launchd_night_memory_pipeline.py`
+
+Wrapper intended for macOS `launchd` execution:
+
+- publishes an initial `running` status
+- invokes `run_night_memory_pipeline.py --apply`
+- generates the final nightly summary for the same `run_id`
+- updates the canonical status file with `summary_status`, `summary_ready`, and summary metadata
+
+### `launchd_night_memory_summary.py`
+
+Companion summary generator intended for isolated summary homes:
+
+- runs `codex exec` from a lightweight dedicated `CODEX_HOME`
+- preserves raw stderr/stdout logs plus a filtered human-readable stderr log
+- returns non-zero when it degrades to fallback mode
+- validates `run_id` so stale summaries are not mistaken for the current nightly run
+
 ## Recommended Automation Pattern
 
-When wiring this into Codex automations, prefer:
+When wiring this into Codex automations and macOS scheduling, prefer:
 
-- one visible automation entry
+- one `launchd` job at `01:30` for the write-side pipeline
+- one canonical status file such as `~/.codex/runtime/night-memory-pipeline/last_run.json`
+- one precomputed summary artifact such as `~/.codex/runtime/night-memory-summary/last_summary.txt`
+- one visible Codex automation at `02:00` that only reads those artifacts and opens an inbox item
 - one root `cwd`
-- one orchestrator script
-- one shared lock directory
 
-This avoids the common failure mode where `worktree` execution plus multiple `cwd` values turns one logical task into multiple isolated runs.
+This avoids the common failure mode where `worktree` execution plus multiple `cwd` values turns one logical task into multiple isolated runs, and it also prevents write-side permission failures inside automation sandboxes.
+
+## Launchd Example
+
+See:
+
+- `examples/launchd/com.example.codex.night-memory-pipeline.plist.example`
+
+Use placeholders instead of hardcoded local usernames or home paths when adapting the example.
 
 ## Status
 

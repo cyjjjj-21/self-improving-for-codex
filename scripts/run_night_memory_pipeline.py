@@ -10,10 +10,12 @@ import subprocess
 import sys
 from pathlib import Path
 
+from memory_utils import atomic_write_text
 
-DEFAULT_SCRIPT_DIR = Path("/Users/chenyuanjie/.codex/skills/self-improving-for-codex/scripts")
-DEFAULT_MAIN_MEMORY_DIR = Path("/Users/chenyuanjie/.codex/memories")
-DEFAULT_BRIDGE_MEMORY_DIR = Path("/Users/chenyuanjie/.claude-to-im/codex-home/memories")
+
+DEFAULT_SCRIPT_DIR = Path(__file__).resolve().parent
+DEFAULT_MAIN_MEMORY_DIR = Path.home() / ".codex" / "memories"
+DEFAULT_BRIDGE_MEMORY_DIR = Path.home() / ".claude-to-im" / "codex-home" / "memories"
 
 
 def _parse_args() -> argparse.Namespace:
@@ -33,6 +35,11 @@ def _parse_args() -> argparse.Namespace:
         default=None,
         help="Override local date in YYYY-MM-DD form for testing weekly behavior",
     )
+    parser.add_argument(
+        "--status-path",
+        default=None,
+        help="Optional JSON file that receives the final pipeline status payload.",
+    )
     return parser.parse_args()
 
 
@@ -49,11 +56,25 @@ def _run_step(name: str, cmd: list[str]) -> dict:
     return payload
 
 
+def _write_status(path: Path, payload: dict) -> None:
+    atomic_write_text(path, json.dumps(payload, ensure_ascii=True, indent=2) + "\n")
+
+
+def _skip_step(name: str, reason: str) -> dict:
+    return {
+        "name": name,
+        "status": "skipped",
+        "reason": reason,
+    }
+
+
 def main() -> int:
     args = _parse_args()
     script_dir = Path(args.script_dir)
     lock_dir = Path(args.lock_dir).expanduser() if args.lock_dir else None
+    status_path = Path(args.status_path).expanduser() if args.status_path else None
     apply_flag = ["--apply"] if args.apply else []
+    started_at = datetime.now().astimezone().isoformat(timespec="seconds")
 
     today = datetime.strptime(args.today, "%Y-%m-%d").date() if args.today else datetime.now().date()
     is_sunday = today.weekday() == 6
@@ -73,47 +94,79 @@ def main() -> int:
     ]
     if lock_dir is not None:
         sync_cmd.extend(["--lock-dir", str(lock_dir)])
-    steps.append(_run_step("bridge_sync", sync_cmd))
+    bridge_step = _run_step("bridge_sync", sync_cmd)
+    steps.append(bridge_step)
 
-    refine_cmd = [
-        sys.executable,
-        str(script_dir / "nightly_refine.py"),
-        "--memory-dir",
-        str(Path(args.main_memory_dir)),
-        "--hours",
-        str(args.hours),
-        *apply_flag,
-    ]
-    if lock_dir is not None:
-        refine_cmd.extend(["--lock-dir", str(lock_dir)])
-    steps.append(_run_step("nightly_refine", refine_cmd))
-
-    if is_sunday:
-        index_cmd = [
+    if bridge_step.get("status") == "failed":
+        steps.append(_skip_step("nightly_refine", "blocked_by=bridge_sync_failure"))
+        if is_sunday:
+            steps.append(_skip_step("weekly_skill_index_refresh", "blocked_by=bridge_sync_failure"))
+        else:
+            steps.append(
+                {
+                    "name": "weekly_skill_index_refresh",
+                    "status": "skipped",
+                    "reason": f"today={today.isoformat()} is not Sunday",
+                }
+            )
+    else:
+        refine_cmd = [
             sys.executable,
-            str(script_dir / "generate_local_skill_index.py"),
+            str(script_dir / "nightly_refine.py"),
+            "--memory-dir",
+            str(Path(args.main_memory_dir)),
+            "--hours",
+            str(args.hours),
             *apply_flag,
         ]
         if lock_dir is not None:
-            index_cmd.extend(["--lock-dir", str(lock_dir)])
-        steps.append(_run_step("weekly_skill_index_refresh", index_cmd))
-    else:
-        steps.append(
-            {
-                "name": "weekly_skill_index_refresh",
-                "status": "skipped",
-                "reason": f"today={today.isoformat()} is not Sunday",
-            }
-        )
+            refine_cmd.extend(["--lock-dir", str(lock_dir)])
+        refine_step = _run_step("nightly_refine", refine_cmd)
+        steps.append(refine_step)
+
+        if refine_step.get("status") == "failed":
+            if is_sunday:
+                steps.append(_skip_step("weekly_skill_index_refresh", "blocked_by=nightly_refine_failure"))
+            else:
+                steps.append(
+                    {
+                        "name": "weekly_skill_index_refresh",
+                        "status": "skipped",
+                        "reason": f"today={today.isoformat()} is not Sunday",
+                    }
+                )
+        elif is_sunday:
+            index_cmd = [
+                sys.executable,
+                str(script_dir / "generate_local_skill_index.py"),
+                *apply_flag,
+            ]
+            if lock_dir is not None:
+                index_cmd.extend(["--lock-dir", str(lock_dir)])
+            steps.append(_run_step("weekly_skill_index_refresh", index_cmd))
+        else:
+            steps.append(
+                {
+                    "name": "weekly_skill_index_refresh",
+                    "status": "skipped",
+                    "reason": f"today={today.isoformat()} is not Sunday",
+                }
+            )
 
     summary = {
+        "started_at": started_at,
+        "finished_at": datetime.now().astimezone().isoformat(timespec="seconds"),
         "mode": "apply" if args.apply else "dry-run",
         "today": today.isoformat(),
         "lock_dir": str(lock_dir) if lock_dir is not None else None,
+        "status_path": str(status_path) if status_path is not None else None,
         "steps": steps,
     }
+    summary["overall_status"] = "failed" if any(step.get("status") == "failed" for step in steps) else "success"
+    if status_path is not None:
+        _write_status(status_path, summary)
     print(json.dumps(summary, ensure_ascii=True, indent=2))
-    return 0
+    return 1 if summary["overall_status"] == "failed" else 0
 
 
 if __name__ == "__main__":

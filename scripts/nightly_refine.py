@@ -33,7 +33,7 @@ def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--memory-dir",
-        default="/Users/chenyuanjie/.codex/memories",
+        default=str(Path.home() / ".codex" / "memories"),
         help="Memory directory to refine",
     )
     parser.add_argument(
