@@ -41,8 +41,8 @@ CATEGORY_ORDER = [
 
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--skills-dir", default="/Users/chenyuanjie/.codex/skills")
-    parser.add_argument("--output", default="/Users/chenyuanjie/.codex/skills/LOCAL_SKILL_INDEX.md")
+    parser.add_argument("--skills-dir", default=str(Path.home() / ".codex" / "skills"))
+    parser.add_argument("--output", default=str(Path.home() / ".codex" / "skills" / "LOCAL_SKILL_INDEX.md"))
     parser.add_argument(
         "--lock-dir",
         default=None,

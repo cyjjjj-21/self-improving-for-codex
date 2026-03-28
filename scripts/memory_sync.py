@@ -24,12 +24,12 @@ def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--source-memory-dir",
-        default="/Users/chenyuanjie/.claude-to-im/codex-home/memories",
+        default=str(Path.home() / ".claude-to-im" / "codex-home" / "memories"),
         help="Bridge or source memory directory",
     )
     parser.add_argument(
         "--dest-memory-dir",
-        default="/Users/chenyuanjie/.codex/memories",
+        default=str(Path.home() / ".codex" / "memories"),
         help="Destination memory directory",
     )
     parser.add_argument(
