@@ -119,11 +119,19 @@ def _finalize_status(base: dict, run_id: str, started_at: str, finished_at: str,
     return payload
 
 
+def _summary_source_status(base: dict) -> dict:
+    payload = json.loads(json.dumps(base))
+    payload["summary_status"] = "ready"
+    payload["summary_ready"] = True
+    return payload
+
+
 def main() -> int:
     args = _parse_args()
     status_dir = Path(args.status_dir).expanduser()
     status_path = status_dir / "last_run.json"
     inner_status_path = status_dir / "last_run.inner.json"
+    summary_source_path = status_dir / "last_run.summary_source.json"
     stdout_log = status_dir / "last_stdout.log"
     stderr_log = status_dir / "last_stderr.log"
     summary_meta = status_dir.parent / "night-memory-summary" / "last_summary.json"
@@ -185,12 +193,15 @@ def main() -> int:
             summary_text,
         )
     _atomic_write(status_path, json.dumps(final_status, ensure_ascii=True, indent=2) + "\n")
+    _atomic_write(summary_source_path, json.dumps(_summary_source_status(final_status), ensure_ascii=True, indent=2) + "\n")
 
     summary_completed = subprocess.run(
         [
             sys.executable,
             str(Path(args.summary_script).expanduser()),
             "--status-path",
+            str(summary_source_path),
+            "--report-status-path",
             str(status_path),
             "--run-id",
             run_id,
@@ -200,6 +211,7 @@ def main() -> int:
         env=_stable_env(),
     )
     summary_meta_payload = _load_json(summary_meta)
+    summary_source_path.unlink(missing_ok=True)
     final_status = _load_json(status_path)
     summary_matches_run = summary_meta_payload.get("run_id") == run_id
     final_status["summary_status"] = "ready" if summary_completed.returncode == 0 else "degraded"

@@ -19,6 +19,11 @@ def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--summary-home", default=str(home / ".codex-summary-home"))
     parser.add_argument("--status-path", default=str(home / ".codex" / "runtime" / "night-memory-pipeline" / "last_run.json"))
+    parser.add_argument(
+        "--report-status-path",
+        default=None,
+        help="Optional canonical status JSON path recorded in summary metadata when the input uses a temporary snapshot.",
+    )
     parser.add_argument("--memory-output", default=str(home / ".codex" / "automations" / "night-memory-pipeline" / "memory.md"))
     parser.add_argument("--runtime-dir", default=str(home / ".codex" / "runtime" / "night-memory-summary"))
     parser.add_argument("--pipeline-out-log", default=str(home / "Library" / "Logs" / "CodexNightMemory" / "night-memory-pipeline.out.log"))
@@ -39,7 +44,8 @@ SUMMARY_PROMPT_TEMPLATE = """只做只读检查，不要执行任何会写入 ~/
 1. 直接给结果，不要描述你的检查过程，不要提技能、规则、记忆加载。
 2. 明确写出第 1 步 bridge raw memory 同步是否成功，第 2 步主记忆精炼是否成功，第 3 步周日 skill index 是否执行或跳过。
 3. 明确写出改了哪些文件、是否写入审计日志、如果失败失败原因是什么、是否需要人工干预。
-4. 用 4-8 行短句或短项目符号即可。
+4. 不要在输出里提及 `summary_status`、`summary_ready`、`inbox`、`摘要生成状态` 这类内部发布字段；只评价 1-3 步维护步骤本身。
+5. 用 4-8 行短句或短项目符号即可。
 """
 
 
@@ -148,6 +154,7 @@ def main() -> int:
     args = _parse_args()
     summary_home = Path(args.summary_home).expanduser()
     status_path = Path(args.status_path).expanduser()
+    report_status_path = Path(args.report_status_path).expanduser() if args.report_status_path else status_path
     memory_output = Path(args.memory_output).expanduser()
     runtime_dir = Path(args.runtime_dir).expanduser()
     pipeline_out_log = Path(args.pipeline_out_log).expanduser()
@@ -219,7 +226,7 @@ def main() -> int:
                 "mode": mode,
                 "degraded": degraded,
                 "codex_returncode": codex_returncode,
-                "status_path": str(status_path),
+                "status_path": str(report_status_path),
                 "run_id": status_payload.get("run_id"),
                 "summary_text_path": str(summary_text_path),
                 "raw_stdout_log": str(raw_stdout_path),
