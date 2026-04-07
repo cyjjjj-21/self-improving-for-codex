@@ -12,6 +12,13 @@ Create these files:
 - `ERRORS.md`
 - `FEATURE_REQUESTS.md`
 
+Optional support files when the raw logs get large:
+
+- `LEARNINGS_INDEX.md`
+- `ERRORS_INDEX.md`
+- `archive/README.md`
+- one or more archive files under `archive/`, for example `LEARNINGS_2026_Q1.md`
+
 ## Role of Each File
 
 ### `PROFILE.md`
@@ -51,6 +58,12 @@ Use for:
 - knowledge updates
 - best practices not yet promoted
 
+If this file gets heavy:
+
+- keep only the current working set in `LEARNINGS.md`
+- move older settled items into archive files
+- summarize buckets and retrieval hints in `LEARNINGS_INDEX.md`
+
 ### `ERRORS.md`
 
 Use for:
@@ -59,6 +72,12 @@ Use for:
 - reusable debugging patterns
 - subtle command/tool gotchas
 
+If this file gets heavy:
+
+- keep only the current working set in `ERRORS.md`
+- move older settled items into archive files
+- summarize buckets and retrieval hints in `ERRORS_INDEX.md`
+
 ### `FEATURE_REQUESTS.md`
 
 Use for:
@@ -66,6 +85,18 @@ Use for:
 - long-term missing capabilities
 - gaps in the current Codex workflow
 - repeated user asks that are not fully solved
+
+## Progressive Disclosure Pattern
+
+When the memory corpus starts getting heavy, prefer this read order:
+
+1. `PROFILE.md`
+2. `ACTIVE.md`
+3. `LEARNINGS_INDEX.md` / `ERRORS_INDEX.md` only when deeper lookup is needed
+4. `LEARNINGS.md` / `ERRORS.md` only when the index points to a relevant current bucket
+5. `archive/` only when current raw files are insufficient
+
+This keeps startup memory light while preserving explainable history.
 
 ## Suggested Minimal Templates
 

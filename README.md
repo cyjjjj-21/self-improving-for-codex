@@ -31,6 +31,7 @@ This local branch extends the original idea into a more operational, repeatable 
 - documentation for using a single root automation workspace so one automation run does not fan out into duplicate per-`cwd` executions
 - launchd-oriented wrappers and status files for write-side nightly maintenance outside Codex `worktree` sandboxes
 - a split nightly pattern where launchd performs real writes and a later Codex automation only reads precomputed summary artifacts to open an inbox item
+- a progressive-disclosure memory layout where startup reads stay on `PROFILE.md` + `ACTIVE.md`, index files guide deeper lookup, and older raw memory can move into archive files without losing traceability
 
 ## Repository Layout
 

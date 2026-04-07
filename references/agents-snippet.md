@@ -20,10 +20,11 @@ It should define:
 
 1. memory directory location
 2. startup reads
-3. logging triggers
-4. file-by-file routing
-5. promotion rules
-6. the boundary between `ACTIVE.md` promotion and `AGENTS.md` promotion
+3. whether heavy raw memory should be gated behind indexes
+4. logging triggers
+5. file-by-file routing
+6. promotion rules
+7. the boundary between `ACTIVE.md` promotion and `AGENTS.md` promotion
 
 ## Recommended Text
 
@@ -35,7 +36,9 @@ Use the global memory directory at `C:\Users\Administrator\.codex\memories`.
 Before starting any task:
 1. Read `C:\Users\Administrator\.codex\memories\PROFILE.md`
 2. Read `C:\Users\Administrator\.codex\memories\ACTIVE.md`
-3. Apply them as global memory before analyzing the user request
+3. If deeper history is needed, consult `C:\Users\Administrator\.codex\memories\LEARNINGS_INDEX.md` and `C:\Users\Administrator\.codex\memories\ERRORS_INDEX.md` before opening heavy raw memory files
+4. Open raw memory or archive files only when the index indicates they are relevant
+5. Apply the startup memory before analyzing the user request
 
 Log only when the outcome is non-obvious, reusable, or likely to recur.
 
@@ -50,6 +53,12 @@ Write entries by type:
 - `C:\Users\Administrator\.codex\memories\LEARNINGS.md` for learnings, corrections, knowledge gaps, and best practices
 - `C:\Users\Administrator\.codex\memories\ERRORS.md` for unexpected errors and debugging notes
 - `C:\Users\Administrator\.codex\memories\FEATURE_REQUESTS.md` for missing capabilities the user wants
+
+Memory layering:
+- `PROFILE.md` + `ACTIVE.md` are authoritative startup memory
+- `LEARNINGS_INDEX.md` + `ERRORS_INDEX.md` are lookup aids for gradual disclosure
+- `LEARNINGS.md` + `ERRORS.md` are the current raw working set
+- `archive/` holds historical raw memory and is not for default startup reads
 
 Promotion rules:
 1. If a pattern recurs or is broadly useful across tasks, promote it into `C:\Users\Administrator\.codex\memories\ACTIVE.md`
@@ -67,3 +76,4 @@ Behavior expectations:
 - Replace paths when the user's Codex home differs
 - If the user already has a good `Self-Improvement` section, extend it instead of replacing it blindly
 - If the user wants project-local memory instead of global memory, make that change explicit and explain the tradeoff
+- If the raw memory files are still small, the index/archive layer is optional; do not add complexity too early

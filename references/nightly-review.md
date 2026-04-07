@@ -27,9 +27,11 @@ Read these files:
 
 1. `~/.codex/memories/PROFILE.md`
 2. `~/.codex/memories/ACTIVE.md`
-3. `~/.codex/memories/LEARNINGS.md`
-4. `~/.codex/memories/ERRORS.md`
-5. `~/.codex/memories/FEATURE_REQUESTS.md`
+3. `~/.codex/memories/LEARNINGS_INDEX.md` and `~/.codex/memories/ERRORS_INDEX.md` if they exist
+4. `~/.codex/memories/LEARNINGS.md`
+5. `~/.codex/memories/ERRORS.md`
+6. `~/.codex/memories/FEATURE_REQUESTS.md`
+7. relevant files under `~/.codex/memories/archive/` only when current raw files or indexes indicate they are needed
 
 Prioritize `LEARNINGS.md`, `ERRORS.md`, and `FEATURE_REQUESTS.md` as the source material for refinement.
 
@@ -70,6 +72,8 @@ The automation may:
 - tighten unclear wording
 - update stale statuses
 - remove overlap between near-identical entries
+- split heavy raw files into a smaller current working set plus archive files, when that improves maintainability
+- refresh any index files so startup reads can stay light after archival
 
 It should not over-prune raw evidence. Preserve enough history to keep later decisions explainable.
 

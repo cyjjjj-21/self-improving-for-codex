@@ -47,6 +47,13 @@ Use this separation consistently:
 - `ERRORS.md`: reusable debugging and environment failure knowledge
 - `FEATURE_REQUESTS.md`: missing capabilities worth tracking across sessions
 
+When raw memory becomes heavy, prefer progressive disclosure instead of adding more startup reads:
+
+- keep `PROFILE.md` and `ACTIVE.md` as the only default startup memory
+- add lightweight index files such as `LEARNINGS_INDEX.md` and `ERRORS_INDEX.md`
+- keep `LEARNINGS.md` / `ERRORS.md` as the current working set
+- move older settled raw entries into `archive/` files when needed
+
 ### 3. Wire the loop through `AGENTS.md`
 
 Use `AGENTS.md` as the single Codex-native entry point.
@@ -90,10 +97,11 @@ These scripts also write audit records so later cleanup or debugging stays expla
 Before finishing, confirm the setup actually forms a loop:
 
 1. `AGENTS.md` points Codex to `PROFILE.md` and `ACTIVE.md`
-2. the five memory files exist and have sane content
+2. the core memory files exist and have sane content
 3. promotion rules are explicit
 4. if automation was requested, the automation prompt clearly explains the refinement-only role and promotion rules
 5. sync or refine scripts have an audit trail when they apply changes
+6. if the memory set has grown large, startup reads still stay lightweight and any index/archive layering is documented clearly
 
 ## Promotion Rules
 
