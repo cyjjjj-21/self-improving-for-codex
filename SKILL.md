@@ -95,6 +95,7 @@ Prefer the bundled scripts when the user wants repeatable sync or maintenance be
 
 - `scripts/memory_sync.py` for conservative bridge-to-main raw memory sync
 - `scripts/nightly_refine.py` for nightly review, promotion, and status updates
+- `scripts/weekly_memory_maintenance.py` for weekly archive rotation, heading normalization, and index refresh
 - `scripts/generate_local_skill_index.py` for regenerating the local skill registry
 - `scripts/run_night_memory_pipeline.py` for a single-entry nightly pipeline that runs sync, refine, and Sunday-only registry refresh in order
 

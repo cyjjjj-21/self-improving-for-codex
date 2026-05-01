@@ -35,6 +35,7 @@ This local branch extends the original idea into a more operational, repeatable 
 - compatibility parsing for both canonical `## [ENTRY-ID] title` headings and legacy plain `## ENTRY-ID` headings in raw memory files
 - explicit working-set health guidance so large `LEARNINGS.md` / `ERRORS.md` files trigger index refresh, archive rotation, or compression instead of silent bloat
 - weekly digest guidance that audits recent memory changes plus the health of the memory tiers themselves
+- a new weekly maintenance pass that can proactively shrink oversized raw memory files, normalize entry headings, refresh indexes, and keep archive boundaries tidy without manual intervention
 
 ## Repository Layout
 
@@ -42,6 +43,7 @@ This local branch extends the original idea into a more operational, repeatable 
 - `references/`: supporting guidance for memory files, `AGENTS.md`, and nightly review behavior
 - `references/weekly-digest.md`: guidance for optional weekly management summaries
 - `scripts/`: deterministic sync, refine, registry, and orchestration helpers
+- `tests/`: regression coverage for weekly maintenance policies
 - `agents/openai.yaml`: Codex skill metadata
 
 ## Deterministic Scripts
@@ -74,6 +76,18 @@ The current pipeline is fail-fast:
 
 This pipeline intentionally does not create a visible weekly management digest. Treat that as a separate read-only automation so nightly write-side maintenance stays predictable.
 
+### `weekly_memory_maintenance.py`
+
+Runs a weekly health-and-size maintenance pass for raw memory files:
+
+- detects when `LEARNINGS.md` or `ERRORS.md` are approaching or exceeding working-set thresholds
+- archives only sufficiently old entries into quarter-based archive files
+- refreshes `LEARNINGS_INDEX.md`, `ERRORS_INDEX.md`, and `archive/README.md`
+- normalizes legacy plain `## ENTRY-ID` headings into canonical `## [ENTRY-ID] title`
+- writes an audit log record so automated cleanup stays explainable
+
+This keeps weekly governance distinct from nightly refine: nightly logic promotes and deduplicates, while weekly maintenance manages file size, archive boundaries, and heading consistency.
+
 ### `launchd_night_memory_pipeline.py`
 
 Wrapper intended for macOS `launchd` execution:
@@ -100,6 +114,7 @@ When wiring this into Codex automations and macOS scheduling, prefer:
 - one canonical status file such as `~/.codex/runtime/night-memory-pipeline/last_run.json`
 - one precomputed summary artifact such as `~/.codex/runtime/night-memory-summary/last_summary.txt`
 - one visible Codex automation at `02:00` that only reads those artifacts and opens an inbox item
+- one optional weekly write-side maintenance automation that runs before any weekly digest
 - one optional weekly digest automation that reviews the last 7 days of memory changes and checks whether indexes, heading formats, and working-set size are drifting
 - one root `cwd`
 
@@ -119,3 +134,9 @@ This repository now reflects both:
 
 - the original upstream self-improving skill idea
 - our local engineering enhancements for more stable real-world Codex automation
+
+Recent optimization highlights:
+
+- weekly memory maintenance can now automatically shrink oversized working-set files instead of waiting for manual cleanup
+- mixed heading styles no longer break tooling, and weekly maintenance can normalize them back to one canonical schema
+- Tier 1 indexes are treated as maintained artifacts rather than stale notes, so the progressive-disclosure layout stays trustworthy over time
