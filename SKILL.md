@@ -53,6 +53,12 @@ When raw memory becomes heavy, prefer progressive disclosure instead of adding m
 - add lightweight index files such as `LEARNINGS_INDEX.md` and `ERRORS_INDEX.md`
 - keep `LEARNINGS.md` / `ERRORS.md` as the current working set
 - move older settled raw entries into `archive/` files when needed
+- treat this as a tiered layout:
+  - Tier 0 startup memory: `PROFILE.md` + `ACTIVE.md`
+  - Tier 1 lookup layer: `LEARNINGS_INDEX.md` + `ERRORS_INDEX.md`
+  - Tier 2 current raw working set: `LEARNINGS.md` + `ERRORS.md` + `FEATURE_REQUESTS.md`
+  - Tier 3 historical raw memory: `archive/`
+- when Tier 2 scope changes materially, refresh Tier 1 indexes in the same maintenance pass
 
 ### 3. Wire the loop through `AGENTS.md`
 
@@ -81,6 +87,8 @@ When the user wants recurring maintenance, create a nightly automation that:
 
 Read [references/nightly-review.md](references/nightly-review.md) before designing the automation.
 
+If the user also wants a management view of memory growth and drift, read [references/weekly-digest.md](references/weekly-digest.md) and keep that as a separate read-only weekly automation rather than merging it into the write-side nightly pipeline.
+
 ### 5. Use scripts when deterministic behavior helps
 
 Prefer the bundled scripts when the user wants repeatable sync or maintenance behavior:
@@ -102,6 +110,7 @@ Before finishing, confirm the setup actually forms a loop:
 4. if automation was requested, the automation prompt clearly explains the refinement-only role and promotion rules
 5. sync or refine scripts have an audit trail when they apply changes
 6. if the memory set has grown large, startup reads still stay lightweight and any index/archive layering is documented clearly
+7. if Tier 2 files are drifting in size or format, the workflow includes a path to refresh indexes, normalize headings, or rotate archive files
 
 ## Promotion Rules
 

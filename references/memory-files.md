@@ -19,6 +19,13 @@ Optional support files when the raw logs get large:
 - `archive/README.md`
 - one or more archive files under `archive/`, for example `LEARNINGS_2026_Q1.md`
 
+Think of the resulting layout as four tiers:
+
+1. Tier 0 startup memory: `PROFILE.md` + `ACTIVE.md`
+2. Tier 1 lookup layer: `LEARNINGS_INDEX.md` + `ERRORS_INDEX.md`
+3. Tier 2 current raw working set: `LEARNINGS.md` + `ERRORS.md` + `FEATURE_REQUESTS.md`
+4. Tier 3 historical raw memory: `archive/`
+
 ## Role of Each File
 
 ### `PROFILE.md`
@@ -64,6 +71,12 @@ If this file gets heavy:
 - move older settled items into archive files
 - summarize buckets and retrieval hints in `LEARNINGS_INDEX.md`
 
+Working-set warning signs:
+
+- roughly more than 800 lines
+- roughly more than 60 parseable entries
+- multiple topic clusters that no longer need to stay in the same live file
+
 ### `ERRORS.md`
 
 Use for:
@@ -77,6 +90,12 @@ If this file gets heavy:
 - keep only the current working set in `ERRORS.md`
 - move older settled items into archive files
 - summarize buckets and retrieval hints in `ERRORS_INDEX.md`
+
+Working-set warning signs:
+
+- roughly more than 1600 lines
+- roughly more than 100 parseable entries
+- repeated low-severity environment notes that can be compressed without losing future debugging value
 
 ### `FEATURE_REQUESTS.md`
 
@@ -97,6 +116,18 @@ When the memory corpus starts getting heavy, prefer this read order:
 5. `archive/` only when current raw files are insufficient
 
 This keeps startup memory light while preserving explainable history.
+
+Whenever Tier 2 scope changes materially, refresh Tier 1 indexes in the same maintenance pass.
+
+## Entry Heading Schema
+
+Canonical raw-memory entry headings should use:
+
+- `## [LRN-YYYY-MM-DD-slug] concise title`
+- `## [ERR-YYYY-MM-DD-slug] concise title`
+- `## [FEAT-YYYY-MM-DD-slug] concise title`
+
+Legacy plain headings such as `## ERR-YYYY-MM-DD-slug` may still exist in older files. Tooling should tolerate them, but new entries should use the bracketed canonical form so maintenance scripts can treat heading syntax as stable schema rather than style.
 
 ## Suggested Minimal Templates
 

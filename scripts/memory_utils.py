@@ -14,7 +14,10 @@ import tempfile
 from typing import Iterable
 
 
-ENTRY_HEADING_RE = re.compile(r"^## \[(?P<entry_id>[^\]]+)\] (?P<title>.+)$", re.MULTILINE)
+ENTRY_HEADING_RE = re.compile(
+    r"^## (?:(?:\[(?P<bracket_id>[^\]]+)\] (?P<bracket_title>.+))|(?P<plain_id>(?:LEARN|LRN|ERR|FEAT)-[A-Za-z0-9._-]+)(?: (?P<plain_title>.+))?)$",
+    re.MULTILINE,
+)
 FIELD_RE = re.compile(r"^\*\*(?P<field>[^*]+)\*\*: (?P<value>.+)$", re.MULTILINE)
 SECTION_RE = re.compile(r"^## (?P<title>[^\n]+)$", re.MULTILINE)
 MAINTENANCE_LOCK_FILENAME = ".maintenance.lock"
@@ -33,9 +36,16 @@ class MemoryEntry:
         if not raw_value:
             return None
         try:
-            return datetime.strptime(raw_value, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=UTC)
+            normalized = raw_value.replace("Z", "+00:00") if raw_value.endswith("Z") else raw_value
+            parsed = datetime.fromisoformat(normalized)
+            if parsed.tzinfo is None:
+                parsed = parsed.replace(tzinfo=UTC)
+            return parsed.astimezone(UTC)
         except ValueError:
-            return None
+            try:
+                return datetime.strptime(raw_value, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=UTC)
+            except ValueError:
+                return None
 
     def normalized_summary(self) -> str:
         return normalize_text(self.summary)
@@ -148,10 +158,12 @@ def parse_memory_document(path: Path) -> MemoryDocument:
         raw = text[start:end].rstrip() + "\n"
         fields = {item.group("field"): item.group("value").strip() for item in FIELD_RE.finditer(raw)}
         summary = extract_section_text(raw, "Summary")
+        entry_id = match.group("bracket_id") or match.group("plain_id") or ""
+        title = match.group("bracket_title") or match.group("plain_title") or entry_id
         entries.append(
             MemoryEntry(
-                entry_id=match.group("entry_id"),
-                title=match.group("title").strip(),
+                entry_id=entry_id.strip(),
+                title=title.strip(),
                 raw=raw,
                 fields=fields,
                 summary=summary,

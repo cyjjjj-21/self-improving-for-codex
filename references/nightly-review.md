@@ -74,6 +74,7 @@ The automation may:
 - remove overlap between near-identical entries
 - split heavy raw files into a smaller current working set plus archive files, when that improves maintainability
 - refresh any index files so startup reads can stay light after archival
+- normalize raw entry heading format toward canonical bracketed headings when files are touched
 
 It should not over-prune raw evidence. Preserve enough history to keep later decisions explainable.
 
@@ -122,3 +123,16 @@ When the environment runs automations in isolated per-`cwd` executions, prefer t
 - use a later Codex automation only for read-only inbox publishing
 
 This avoids duplicate runs, conflicting `.maintenance.lock` writes, sandbox permission failures, and repeated `PENDING_REVIEW` items for what should be one logical nightly task.
+
+## Weekly Digest Boundary
+
+Do not overload the nightly write-side refinement pass with management reporting about long-horizon memory growth.
+
+If the user wants a weekly operational summary, keep it as a separate read-only automation that:
+
+- summarizes the last 7 days of added or changed memory entries
+- checks whether Tier 1 indexes still match Tier 2 scope
+- checks for heading-format drift such as mixed `## [ENTRY-ID]` and `## ENTRY-ID`
+- reports whether Tier 2 files are approaching archive/compression thresholds
+
+That split keeps nightly write behavior simple while still giving the user a periodic governance view.

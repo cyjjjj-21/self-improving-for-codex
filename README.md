@@ -32,11 +32,15 @@ This local branch extends the original idea into a more operational, repeatable 
 - launchd-oriented wrappers and status files for write-side nightly maintenance outside Codex `worktree` sandboxes
 - a split nightly pattern where launchd performs real writes and a later Codex automation only reads precomputed summary artifacts to open an inbox item
 - a progressive-disclosure memory layout where startup reads stay on `PROFILE.md` + `ACTIVE.md`, index files guide deeper lookup, and older raw memory can move into archive files without losing traceability
+- compatibility parsing for both canonical `## [ENTRY-ID] title` headings and legacy plain `## ENTRY-ID` headings in raw memory files
+- explicit working-set health guidance so large `LEARNINGS.md` / `ERRORS.md` files trigger index refresh, archive rotation, or compression instead of silent bloat
+- weekly digest guidance that audits recent memory changes plus the health of the memory tiers themselves
 
 ## Repository Layout
 
 - `SKILL.md`: the skill entry and workflow
 - `references/`: supporting guidance for memory files, `AGENTS.md`, and nightly review behavior
+- `references/weekly-digest.md`: guidance for optional weekly management summaries
 - `scripts/`: deterministic sync, refine, registry, and orchestration helpers
 - `agents/openai.yaml`: Codex skill metadata
 
@@ -68,6 +72,8 @@ The current pipeline is fail-fast:
 - if refinement fails, weekly index refresh is also marked `skipped`
 - optional `--status-path` writes a machine-readable JSON payload with step status and timestamps
 
+This pipeline intentionally does not create a visible weekly management digest. Treat that as a separate read-only automation so nightly write-side maintenance stays predictable.
+
 ### `launchd_night_memory_pipeline.py`
 
 Wrapper intended for macOS `launchd` execution:
@@ -94,6 +100,7 @@ When wiring this into Codex automations and macOS scheduling, prefer:
 - one canonical status file such as `~/.codex/runtime/night-memory-pipeline/last_run.json`
 - one precomputed summary artifact such as `~/.codex/runtime/night-memory-summary/last_summary.txt`
 - one visible Codex automation at `02:00` that only reads those artifacts and opens an inbox item
+- one optional weekly digest automation that reviews the last 7 days of memory changes and checks whether indexes, heading formats, and working-set size are drifting
 - one root `cwd`
 
 This avoids the common failure mode where `worktree` execution plus multiple `cwd` values turns one logical task into multiple isolated runs, and it also prevents write-side permission failures inside automation sandboxes.

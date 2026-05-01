@@ -55,10 +55,12 @@ Write entries by type:
 - `C:\Users\Administrator\.codex\memories\FEATURE_REQUESTS.md` for missing capabilities the user wants
 
 Memory layering:
-- `PROFILE.md` + `ACTIVE.md` are authoritative startup memory
-- `LEARNINGS_INDEX.md` + `ERRORS_INDEX.md` are lookup aids for gradual disclosure
-- `LEARNINGS.md` + `ERRORS.md` are the current raw working set
-- `archive/` holds historical raw memory and is not for default startup reads
+- Tier 0 startup memory: `PROFILE.md` + `ACTIVE.md`
+- Tier 1 lookup layer: `LEARNINGS_INDEX.md` + `ERRORS_INDEX.md`
+- Tier 2 current raw working set: `LEARNINGS.md` + `ERRORS.md` + `FEATURE_REQUESTS.md`
+- Tier 3 historical raw memory: `archive/`
+- If Tier 2 scope changes materially, refresh Tier 1 indexes in the same maintenance pass
+- If Tier 2 gets noticeably heavy, prefer archive rotation or compression before adding more governance prose
 
 Promotion rules:
 1. If a pattern recurs or is broadly useful across tasks, promote it into `C:\Users\Administrator\.codex\memories\ACTIVE.md`
